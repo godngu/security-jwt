@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: local
+
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+
+  datasource:
+    # 웹 콘솔에서 최초 한 번 접속해서 파일 생성
+    # jdbc:h2:~/datajpa
+    url: jdbc:h2:tcp://localhost/~/jwt
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.lob.non_contextual_creation: true
+
+## TODO: 서버 환경마다 다르게 설정해야 한다.
+#application:
+#  jwt:
+#    accessSecretKey: "kiljun_tech_company_jwt_secret_key"
+#    refreshSecretKey: "kiljun_tech_company_jwt_secret_key2"
+#    tokenPrefix: "Bearer "
+#    tokenExpirationAfterMinutes: 10
+#    refreshTokenExpirationAfterDays: 7
+#    issuer: "https://www.godngu.com"
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+    io:
+      swagger:
+        models:
+          parameters:
+            AbstractSerializableParameter: ERROR

@@ -14,6 +14,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     private boolean alreadySetup = false;
 
+    private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final MemberRoleRepository memberRoleRepository;
     private final RoleRepository roleRepository;
@@ -49,12 +51,12 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         createMemberIfNotFound("user@test.com", "1111", 20, roleUser);
     }
 
-    private Member createMemberIfNotFound(String email, String password, int age, Role role) {
+    private Member createMemberIfNotFound(String email, String password, int age, Role... role) {
         Optional<Member> member = memberRepository.findByEmail(email);
         if (member.isPresent()) {
             return member.get();
         }
-        return memberRepository.save(Member.createMember(email, password, age, role));
+        return memberRepository.save(Member.createMember(email, passwordEncoder.encode(password), age, role));
     }
 
     private Role createRoleIfNotFound(RoleType roleType) {

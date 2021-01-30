@@ -1,4 +1,4 @@
-package godngu.securityjwt.security.filter;
+package godngu.securityjwt.security.login;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -47,6 +47,9 @@ public class Member {
     @Positive
     private int age;
 
+    @Column(name = "refresh_jti")
+    private String jti;
+
     @OneToMany(mappedBy = "member", cascade = ALL)
     @NotNull
     private Set<MemberRole> memberRoles = new HashSet<>();
@@ -65,5 +68,13 @@ public class Member {
             member.getMemberRoles().add(memberRole);
         }
         return member;
+    }
+
+    public void login(String jti) {
+        this.jti = jti;
+    }
+
+    public void logout() {
+        this.jti = null;
     }
 }

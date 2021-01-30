@@ -3,10 +3,10 @@ package godngu.securityjwt.security.config;
 import static org.springframework.security.config.BeanIds.AUTHENTICATION_MANAGER;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import godngu.securityjwt.security.handler.LoginFailureHandler;
-import godngu.securityjwt.security.handler.LoginSuccessHandler;
-import godngu.securityjwt.security.provider.LoginAuthenticationProvider;
-import godngu.securityjwt.security.filter.LoginAuthenticationFilter;
+import godngu.securityjwt.security.login.LoginFailureHandler;
+import godngu.securityjwt.security.login.LoginSuccessHandler;
+import godngu.securityjwt.security.login.LoginAuthenticationProvider;
+import godngu.securityjwt.security.login.LoginAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers(PERMIT_ALL_RESOURCES).permitAll();
         http
-            .addFilterBefore(loginAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public LoginAuthenticationFilter loginAuthFilter() throws Exception {
+    public LoginAuthenticationFilter loginAuthenticationFilter() throws Exception {
         LoginAuthenticationFilter filter = new LoginAuthenticationFilter();
         filter.setAuthenticationSuccessHandler(loginSuccessHandler);
         filter.setAuthenticationFailureHandler(loginFailureHandler);

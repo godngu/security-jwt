@@ -1,4 +1,4 @@
-package godngu.securityjwt.security.handler;
+package godngu.securityjwt.security.login;
 
 import java.io.IOException;
 import javax.servlet.ServletException;

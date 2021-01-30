@@ -1,4 +1,4 @@
-package godngu.securityjwt.security.provider;
+package godngu.securityjwt.security.login;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

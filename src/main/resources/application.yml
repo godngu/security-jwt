@@ -28,14 +28,13 @@ spring:
         jdbc.lob.non_contextual_creation: true
 
 ## TODO: 서버 환경마다 다르게 설정해야 한다.
-#application:
-#  jwt:
-#    accessSecretKey: "kiljun_tech_company_jwt_secret_key"
-#    refreshSecretKey: "kiljun_tech_company_jwt_secret_key2"
-#    tokenPrefix: "Bearer "
-#    tokenExpirationAfterMinutes: 10
-#    refreshTokenExpirationAfterDays: 7
-#    issuer: "https://www.godngu.com"
+application:
+  jwt:
+    secretKey: "abce1234abce1234abce1234abce1234abce1234abce1234abce1234abce1234"
+    tokenPrefix: "Bearer "
+    tokenExpirationAfterMinutes: 10
+    refreshTokenExpirationAfterDays: 7
+    issuer: "https://www.godngu.com"
 
 logging:
   level:

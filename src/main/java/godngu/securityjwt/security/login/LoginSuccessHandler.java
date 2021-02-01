@@ -1,30 +1,58 @@
 package godngu.securityjwt.security.login;
 
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import godngu.securityjwt.domain.entity.Member;
+import godngu.securityjwt.domain.exception.EntityNotFoundException;
+import godngu.securityjwt.domain.repository.MemberRepository;
+import godngu.securityjwt.security.jwt.JwtTokenFactory;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Set;
+import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final ObjectMapper objectMapper;
+    private final JwtTokenFactory tokenFactory;
+    private final MemberRepository memberRepository;
 
     @Override
+    @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        // TODO: 로그인 성공시 jwt 토큰 생성
         String email = (String) authentication.getPrincipal();
         Collection<GrantedAuthority> authorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
+
+        UUID uuid = UUID.randomUUID();
+        String accessToken = tokenFactory.generateAccessToken(email, authorities);
+        String refreshToken = tokenFactory.generateRefreshToken(email, uuid);
+
+        Member member = memberRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        member.login(uuid.toString());
+
+        LoginResponse loginResponse = new LoginResponse(accessToken, refreshToken);
+        sendResponse(response, loginResponse);
+    }
+
+    private void sendResponse(HttpServletResponse response, LoginResponse loginResponse) throws IOException {
+        response.setStatus(OK.value());
+        response.setContentType(APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(response.getWriter(), loginResponse);
     }
 }

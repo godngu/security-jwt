@@ -4,7 +4,6 @@ import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import godngu.securityjwt.domain.entity.Member;
 import godngu.securityjwt.domain.exception.EntityNotFoundException;
 import godngu.securityjwt.domain.repository.MemberRepository;
 import godngu.securityjwt.security.jwt.JwtTokenFactory;
@@ -14,11 +13,9 @@ import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,11 +40,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = tokenFactory.generateAccessToken(email, authorities);
         String refreshToken = tokenFactory.generateRefreshToken(email, uuid);
 
-        Member member = memberRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
-        member.login(uuid.toString());
+        memberRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new)
+            .login(uuid.toString());
 
-        LoginResponse loginResponse = new LoginResponse(accessToken, refreshToken);
-        sendResponse(response, loginResponse);
+        sendResponse(response, new LoginResponse(accessToken, refreshToken));
     }
 
     private void sendResponse(HttpServletResponse response, LoginResponse loginResponse) throws IOException {

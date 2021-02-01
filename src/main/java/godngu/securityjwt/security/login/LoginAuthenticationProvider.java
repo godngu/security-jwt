@@ -8,7 +8,6 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
@@ -28,17 +27,17 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
         String email = authentication.getName();
         String password = (String) authentication.getCredentials();
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        MemberContext memberContext = (MemberContext) userDetailsService.loadUserByUsername(email);
 
-        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (!passwordEncoder.matches(password, memberContext.getPassword())) {
             throw new BadCredentialsException("BadCredentialsException");
         }
 
-        if (CollectionUtils.isEmpty(userDetails.getAuthorities())) {
+        if (CollectionUtils.isEmpty(memberContext.getAuthorities())) {
             throw new InsufficientAuthenticationException("User has no roles assigned");
         }
 
-        return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(memberContext, null, memberContext.getAuthorities());
     }
 
     @Override

@@ -2,11 +2,11 @@ package godngu.securityjwt.security;
 
 import godngu.securityjwt.domain.entity.Member;
 import godngu.securityjwt.domain.repository.MemberRepository;
+import godngu.securityjwt.security.login.MemberContext;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,16 +24,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException"));
-        return createUser(member);
+        return createMemberContext(member);
     }
 
-    private User createUser(Member member) {
-
+    private MemberContext createMemberContext(Member member) {
         List<SimpleGrantedAuthority> authorities = member.getMemberRoles().stream()
             .map(memberRole -> memberRole.getRole().getRoleType().name())
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
-
-        return new User(member.getEmail(), member.getPassword(), authorities);
+        return new MemberContext(member, authorities);
     }
 }

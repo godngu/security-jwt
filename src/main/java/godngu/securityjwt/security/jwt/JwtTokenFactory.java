@@ -4,6 +4,7 @@ import static godngu.securityjwt.domain.entity.RoleType.ROLE_REFRESH;
 import static godngu.securityjwt.security.common.SecurityConstants.AUTHORITIES;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
+import godngu.securityjwt.domain.entity.Member;
 import godngu.securityjwt.domain.entity.RoleType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -26,15 +27,18 @@ public class JwtTokenFactory {
 
     private final JwtConfig jwtConfig;
 
-    public String generateAccessToken(String email, Collection<GrantedAuthority> authorities) {
-        return generateToken(email, authorities, UUID.randomUUID());
+    public String generateAccessToken(Member member, Collection<GrantedAuthority> authorities) {
+        return generateToken(member.getId(), member.getEmail(), authorities, UUID.randomUUID());
     }
 
-    public String generateRefreshToken(String email, UUID uuid) {
-        return generateAccessToken(email, Arrays.asList(new SimpleGrantedAuthority(ROLE_REFRESH.name())));
+    public String generateRefreshToken(Member member, UUID uuid) {
+        return generateToken(member.getId(),
+            member.getEmail(),
+            Arrays.asList(new SimpleGrantedAuthority(ROLE_REFRESH.name())),
+            uuid);
     }
 
-    public String generateToken(String email, Collection<GrantedAuthority> authorities, UUID uuid) {
+    public String generateToken(Long memberId, String email, Collection<GrantedAuthority> authorities, UUID uuid) {
 
         verifyEmailAndAuthorities(email, authorities);
 

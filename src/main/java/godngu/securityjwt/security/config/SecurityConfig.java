@@ -3,10 +3,13 @@ package godngu.securityjwt.security.config;
 import static org.springframework.security.config.BeanIds.AUTHENTICATION_MANAGER;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import godngu.securityjwt.security.access.SkipPathRequestMatcher;
+import godngu.securityjwt.security.access.TokenAuthenticationFilter;
 import godngu.securityjwt.security.login.LoginFailureHandler;
 import godngu.securityjwt.security.login.LoginSuccessHandler;
 import godngu.securityjwt.security.login.LoginAuthenticationProvider;
 import godngu.securityjwt.security.login.LoginAuthenticationFilter;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] PERMIT_ALL_RESOURCES = {"/", "/login*"};
+    public static final String API_ROOT_URL = "/api/**";
 
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
@@ -43,7 +47,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers(PERMIT_ALL_RESOURCES).permitAll();
         http
-            .addFilterBefore(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+            .authorizeRequests().anyRequest().authenticated();
+        http
+            .addFilterBefore(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    protected TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
+        TokenAuthenticationFilter filter = new TokenAuthenticationFilter(
+            new SkipPathRequestMatcher(Arrays.asList(PERMIT_ALL_RESOURCES), API_ROOT_URL)
+        );
+        filter.setAuthenticationManager(authenticationManagerBean());
+        return filter;
     }
 
     @Override

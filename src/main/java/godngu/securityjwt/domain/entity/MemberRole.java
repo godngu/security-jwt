@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "member_role")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-public class MemberRole {
+public class MemberRole extends BaseEntity {
 
     @Id
     @GeneratedValue

@@ -31,7 +31,7 @@ spring:
 application:
   jwt:
     secretKey: "abce1234abce1234abce1234abce1234abce1234abce1234abce1234abce1234"
-    tokenPrefix: "Bearer "
+#    tokenPrefix: "Bearer "
     tokenExpirationAfterMinutes: 10
     refreshTokenExpirationAfterDays: 7
     issuer: "https://www.godngu.com"

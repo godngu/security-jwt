@@ -42,8 +42,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String accessToken = tokenFactory.generateAccessToken(member, authorities);
         String refreshToken = tokenFactory.generateRefreshToken(member, uuid);
 
-//        member.login(uuid.toString());
-
         memberRepository.findByEmail(member.getEmail()).orElseThrow(EntityNotFoundException::new)
             .login(uuid.toString());
 

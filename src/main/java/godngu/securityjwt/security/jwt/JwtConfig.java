@@ -21,8 +21,8 @@ import org.springframework.http.HttpHeaders;
 public class JwtConfig {
 
     private final String secretKey;
-    @Getter
-    private final String tokenPrefix;
+//    @Getter
+//    private final String tokenPrefix;
     @Getter
     private final Integer tokenExpirationAfterMinutes;
     @Getter
@@ -54,7 +54,7 @@ public class JwtConfig {
         return Keys.hmacShaKeyFor(key.getBytes(UTF_8));
     }
 
-    public String makeBearerToken(String token) {
-        return this.tokenPrefix + token;
-    }
+//    public String makeBearerToken(String token) {
+//        return this.tokenPrefix + token;
+//    }
 }

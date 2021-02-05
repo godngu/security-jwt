@@ -5,6 +5,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 import godngu.securityjwt.security.access.SkipPathRequestMatcher;
 import godngu.securityjwt.security.access.TokenAuthenticationFilter;
+import godngu.securityjwt.security.jwt.JwtConfig;
 import godngu.securityjwt.security.login.LoginFailureHandler;
 import godngu.securityjwt.security.login.LoginSuccessHandler;
 import godngu.securityjwt.security.login.LoginAuthenticationProvider;
@@ -30,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] PERMIT_ALL_RESOURCES = {"/", "/login*"};
     public static final String API_ROOT_URL = "/api/**";
 
+    private final JwtConfig jwtConfig;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
 
@@ -55,8 +57,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     protected TokenAuthenticationFilter tokenAuthenticationFilter() throws Exception {
         TokenAuthenticationFilter filter = new TokenAuthenticationFilter(
-            new SkipPathRequestMatcher(Arrays.asList(PERMIT_ALL_RESOURCES), API_ROOT_URL)
-        );
+            new SkipPathRequestMatcher(Arrays.asList(PERMIT_ALL_RESOURCES), API_ROOT_URL),
+            jwtConfig);
         filter.setAuthenticationManager(authenticationManagerBean());
         return filter;
     }

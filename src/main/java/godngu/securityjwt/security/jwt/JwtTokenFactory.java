@@ -50,6 +50,7 @@ public class JwtTokenFactory {
 
         Claims payload = Jwts.claims().setSubject(email);
         payload.put(AUTHORITIES, authorities);
+        payload.put("memberId", memberId);
 
         return Jwts.builder()
             .setHeader(header)

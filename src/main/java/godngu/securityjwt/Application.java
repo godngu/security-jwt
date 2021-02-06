@@ -3,9 +3,8 @@ package godngu.securityjwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import godngu.securityjwt.domain.entity.Member;
+import godngu.securityjwt.security.common.SecurityMemberContext;
 import godngu.securityjwt.security.jwt.JwtConfig;
-import godngu.securityjwt.security.login.MemberContext;
 import java.util.Optional;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,9 +41,8 @@ public class Application {
                 return null;
             }
 
-            MemberContext memberContext = (MemberContext) authentication.getPrincipal();
-            Member member = memberContext.getMember();
-            return Optional.of(member.getId());
+            SecurityMemberContext memberContext = (SecurityMemberContext) authentication.getPrincipal();
+            return Optional.of(memberContext.getMemberId());
         };
     }
 }

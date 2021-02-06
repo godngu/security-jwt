@@ -1,5 +1,16 @@
 package godngu.securityjwt.security.login;
 
+import godngu.securityjwt.domain.entity.Member;
+import godngu.securityjwt.domain.entity.MemberRole;
+import godngu.securityjwt.domain.entity.Role;
+import godngu.securityjwt.domain.exception.EntityNotFoundException;
+import godngu.securityjwt.domain.repository.MemberRepository;
+import godngu.securityjwt.security.common.SecurityMemberContext;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -8,17 +19,18 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
 public class LoginAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private MemberRepository memberRepository;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -27,21 +39,32 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
         String email = authentication.getName();
         String password = (String) authentication.getCredentials();
 
-        MemberContext memberContext = (MemberContext) userDetailsService.loadUserByUsername(email);
+        Member member = memberRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
 
-        if (!passwordEncoder.matches(password, memberContext.getPassword())) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
             throw new BadCredentialsException("BadCredentialsException");
         }
 
-        if (CollectionUtils.isEmpty(memberContext.getAuthorities())) {
-            throw new InsufficientAuthenticationException("User has no roles assigned");
+        if (CollectionUtils.isEmpty(member.getMemberRoles())) {
+            throw new InsufficientAuthenticationException("Member has no roles assigned");
         }
 
-        return new UsernamePasswordAuthenticationToken(memberContext, null, memberContext.getAuthorities());
+        SecurityMemberContext securityMemberContext = createSecurityMemberContext(member);
+        return new UsernamePasswordAuthenticationToken(securityMemberContext, null, securityMemberContext.getAuthorities());
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
+    }
+
+    private SecurityMemberContext createSecurityMemberContext(Member member) {
+
+        Collection<GrantedAuthority> authorities = member.getMemberRoles().stream()
+            .map(memberRole -> memberRole.getRole().getRoleType().name())
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toSet());
+
+        return new SecurityMemberContext(member.getId(), member.getEmail(), authorities);
     }
 }

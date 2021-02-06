@@ -6,6 +6,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import godngu.securityjwt.domain.entity.Member;
 import godngu.securityjwt.domain.entity.RoleType;
+import godngu.securityjwt.security.common.SecurityMemberContext;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,13 +28,16 @@ public class JwtTokenFactory {
 
     private final JwtConfig jwtConfig;
 
-    public String generateAccessToken(Member member, Collection<GrantedAuthority> authorities) {
-        return generateToken(member.getId(), member.getEmail(), authorities, UUID.randomUUID());
+    public String generateAccessToken(SecurityMemberContext securityMemberContext) {
+        return generateToken(securityMemberContext.getMemberId(),
+            securityMemberContext.getEmail(),
+            securityMemberContext.getAuthorities(),
+            UUID.randomUUID());
     }
 
-    public String generateRefreshToken(Member member, UUID uuid) {
-        return generateToken(member.getId(),
-            member.getEmail(),
+    public String generateRefreshToken(SecurityMemberContext securityMemberContext, UUID uuid) {
+        return generateToken(securityMemberContext.getMemberId(),
+            securityMemberContext.getEmail(),
             Arrays.asList(new SimpleGrantedAuthority(ROLE_REFRESH.name())),
             uuid);
     }

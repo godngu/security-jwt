@@ -30,11 +30,10 @@ spring:
 ## TODO: 서버 환경마다 다르게 설정해야 한다.
 application:
   jwt:
-    secretKey: "abce1234abce1234abce1234abce1234abce1234abce1234abce1234abce1234"
-#    tokenPrefix: "Bearer "
-    tokenExpirationAfterMinutes: 10
+    secretKey: "abcdefg12345678abcdefg12345678abcdefg12345678abcdefg12345678"
+    tokenExpirationAfterMinutes: 60
     refreshTokenExpirationAfterDays: 7
-    issuer: "https://www.godngu.com"
+    issuer: "https://www.test.com"
 
 logging:
   level:

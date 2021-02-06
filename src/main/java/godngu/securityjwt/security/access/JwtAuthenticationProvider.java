@@ -3,6 +3,7 @@ package godngu.securityjwt.security.access;
 import static godngu.securityjwt.security.common.SecurityConstants.AUTHORITIES;
 import static godngu.securityjwt.security.common.SecurityConstants.AUTHORITY;
 
+import godngu.securityjwt.security.common.SecurityMemberContext;
 import godngu.securityjwt.security.jwt.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -11,7 +12,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,28 +20,29 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TokenAuthenticationProvider implements AuthenticationProvider {
+public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private final JwtConfig jwtConfig;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        String token = (String) authentication.getPrincipal();
+        String token = (String) authentication.getCredentials();
         
         // 토큰 검증
         Claims claims = parse(token);
         String email = claims.getSubject();
+        Long memberId = getMemberId(claims);
         List<GrantedAuthority> authorities = getAuthorities(claims);
 
         // ROLE 검증?
-
-        return new UsernamePasswordAuthenticationToken(email, null, authorities);
+        SecurityMemberContext securityMemberContext = SecurityMemberContext.create(memberId, email, authorities);
+        return new JwtAuthenticationToken(securityMemberContext, authorities);
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+        return authentication.equals(JwtAuthenticationToken.class);
     }
 
     private Claims parse(String token) {
@@ -57,5 +58,9 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
         return authorities.stream()
             .map(m -> new SimpleGrantedAuthority(m.get(AUTHORITY)))
             .collect(Collectors.toList());
+    }
+
+    private Long getMemberId(Claims claims) {
+        return claims.get("memberId", Long.class);
     }
 }

@@ -1,7 +1,18 @@
 
+# 테스트 계정 (id/pw)
+- admin@test.com / 1111
+- manager@test.com / 1111
+- user@test.com / 1111
+
+# Resources
+### permitAll
+- POST /login
+- GET /hello
+
+### 인증 필요
+- GET /api/hello
 
 # classes
----
 | class type | Login 처리 | Token 인증 |
 |---|---|---|
 | `filter` | LoginAuthenticationFilter | JwtAuthenticationFilter |
@@ -11,7 +22,6 @@
 
 
 # 주의할점?
----
 ## 진입될 Filter와 처리할 Provider 결정하기
 - filter는 SecurityConfig 에서 설정되며, RequestMatcher에 의해 url 패턴을 결정한다.
 - provider의 supports 메소드에 정의된 token class를 기준으로 사용될 provider가 정해진다.

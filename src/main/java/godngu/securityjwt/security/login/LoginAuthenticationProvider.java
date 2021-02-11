@@ -1,7 +1,5 @@
 package godngu.securityjwt.security.login;
 
-import static godngu.securityjwt.security.login.PostLoginAuthenticationToken.create;
-
 import godngu.securityjwt.domain.entity.Member;
 import godngu.securityjwt.domain.exception.EntityNotFoundException;
 import godngu.securityjwt.domain.repository.MemberRepository;
@@ -47,7 +45,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
             throw new InsufficientAuthenticationException("Member has no roles assigned");
         }
 
-        return create(createSecurityMemberContext(member));
+        return PostLoginAuthenticationToken.create(createSecurityMemberContext(member));
     }
 
     @Override

@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
         String token = extractToken(request);
         return this.getAuthenticationManager().authenticate(
-            new JwtAuthenticationToken(token));
+            PreJwtAuthenticationToken.create(token));
     }
 
     private String extractToken(HttpServletRequest request) {
@@ -55,5 +55,12 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         context.setAuthentication(authResult);
         SecurityContextHolder.setContext(context);
         chain.doFilter(request, response);
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+        AuthenticationException failed) throws IOException, ServletException {
+        SecurityContextHolder.clearContext();
+        super.unsuccessfulAuthentication(request, response, failed);
     }
 }

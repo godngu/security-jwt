@@ -1,6 +1,5 @@
 package godngu.securityjwt.security.login;
 
-import static godngu.securityjwt.security.login.PreLoginAuthenticationToken.create;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +37,9 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
         LoginRequest loginRequest = objectMapper.readValue(request.getReader(), LoginRequest.class);
         verify(loginRequest);
 
-        return this.getAuthenticationManager().authenticate(create(loginRequest));
+        return this.getAuthenticationManager().authenticate(
+            PreLoginAuthenticationToken.create(loginRequest)
+        );
     }
 
     private void verify(LoginRequest loginRequest) {

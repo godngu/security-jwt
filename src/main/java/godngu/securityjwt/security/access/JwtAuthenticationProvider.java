@@ -27,7 +27,8 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
-        String token = (String) authentication.getCredentials();
+        PreJwtAuthenticationToken authenticationToken = (PreJwtAuthenticationToken) authentication;
+        String token = authenticationToken.getToken();
         
         // 토큰 검증
         Claims claims = parse(token);
@@ -37,12 +38,12 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
 
         // ROLE 검증?
         SecurityMemberContext securityMemberContext = SecurityMemberContext.create(memberId, email, authorities);
-        return new JwtAuthenticationToken(securityMemberContext, authorities);
+        return PostJwtAuthenticationToken.create(securityMemberContext);
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.equals(JwtAuthenticationToken.class);
+        return authentication.equals(PreJwtAuthenticationToken.class);
     }
 
     private Claims parse(String token) {

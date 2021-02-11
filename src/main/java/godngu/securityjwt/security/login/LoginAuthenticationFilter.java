@@ -1,5 +1,6 @@
 package godngu.securityjwt.security.login;
 
+import static godngu.securityjwt.security.login.PreLoginAuthenticationToken.create;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -38,10 +38,7 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
         LoginRequest loginRequest = objectMapper.readValue(request.getReader(), LoginRequest.class);
         verify(loginRequest);
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-            loginRequest.getEmail(), loginRequest.getPassword());
-
-        return this.getAuthenticationManager().authenticate(token);
+        return this.getAuthenticationManager().authenticate(create(loginRequest));
     }
 
     private void verify(LoginRequest loginRequest) {

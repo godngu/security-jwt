@@ -1,22 +1,18 @@
 package godngu.securityjwt.security.login;
 
+import static godngu.securityjwt.security.login.PostLoginAuthenticationToken.create;
+
 import godngu.securityjwt.domain.entity.Member;
-import godngu.securityjwt.domain.entity.MemberRole;
-import godngu.securityjwt.domain.entity.Role;
 import godngu.securityjwt.domain.exception.EntityNotFoundException;
 import godngu.securityjwt.domain.repository.MemberRepository;
 import godngu.securityjwt.security.common.SecurityMemberContext;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,8 +32,10 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Assert.notNull(authentication, "No authentication data provided");
 
-        String email = authentication.getName();
-        String password = (String) authentication.getCredentials();
+        PreLoginAuthenticationToken authenticationToken = (PreLoginAuthenticationToken) authentication;
+
+        String email = authenticationToken.getEmail();
+        String password = authenticationToken.getPassword();
 
         Member member = memberRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
 
@@ -49,17 +47,15 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
             throw new InsufficientAuthenticationException("Member has no roles assigned");
         }
 
-        SecurityMemberContext securityMemberContext = createSecurityMemberContext(member);
-        return new UsernamePasswordAuthenticationToken(securityMemberContext, null, securityMemberContext.getAuthorities());
+        return create(createSecurityMemberContext(member));
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.equals(UsernamePasswordAuthenticationToken.class);
+        return authentication.equals(PreLoginAuthenticationToken.class);
     }
 
     private SecurityMemberContext createSecurityMemberContext(Member member) {
-
         Collection<GrantedAuthority> authorities = member.getMemberRoles().stream()
             .map(memberRole -> memberRole.getRole().getRoleType().name())
             .map(SimpleGrantedAuthority::new)

@@ -16,4 +16,5 @@ public class SecurityMemberContext {
     public static SecurityMemberContext create(Long memberId, String email, Collection<GrantedAuthority> authorities) {
         return new SecurityMemberContext(memberId, email, authorities);
     }
+
 }

@@ -35,8 +35,10 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        SecurityMemberContext memberContext = (SecurityMemberContext) authentication.getPrincipal();
-        Collection<? extends GrantedAuthority> authorities = memberContext.getAuthorities();
+        PostLoginAuthenticationToken authenticationToken = (PostLoginAuthenticationToken) authentication;
+
+        SecurityMemberContext memberContext = authenticationToken.getSecurityMemberContext();
+        Collection<GrantedAuthority> authorities = memberContext.getAuthorities();
 
         UUID uuid = UUID.randomUUID();
         String accessToken = tokenFactory.generateAccessToken(memberContext);

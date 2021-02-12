@@ -3,17 +3,24 @@ package godngu.securityjwt.security.config;
 import static godngu.securityjwt.domain.entity.RoleType.ROLE_ADMIN;
 import static godngu.securityjwt.domain.entity.RoleType.ROLE_MANAGER;
 import static godngu.securityjwt.domain.entity.RoleType.ROLE_USER;
+import static org.springframework.http.HttpMethod.GET;
 
 import godngu.securityjwt.domain.entity.Member;
+import godngu.securityjwt.domain.entity.Resource;
 import godngu.securityjwt.domain.entity.Role;
 import godngu.securityjwt.domain.entity.RoleType;
 import godngu.securityjwt.domain.repository.MemberRepository;
 import godngu.securityjwt.domain.repository.MemberRoleRepository;
+import godngu.securityjwt.domain.repository.ResourceRepository;
+import godngu.securityjwt.domain.repository.ResourceRoleRepository;
 import godngu.securityjwt.domain.repository.RoleRepository;
 import java.util.Optional;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +33,11 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final MemberRoleRepository memberRoleRepository;
     private final RoleRepository roleRepository;
+    private final ResourceRepository resourceRepository;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     @Transactional
@@ -49,21 +59,50 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         createMemberIfNotFound("admin@test.com", "1111", 40, roleAdmin);
         createMemberIfNotFound("manager@test.com", "1111", 30, roleManager);
         createMemberIfNotFound("user@test.com", "1111", 20, roleUser);
+
+        createResourceIfNotFound("/api/hello/admin", "테스트 관리자 페이지", GET, roleAdmin);
+        createResourceIfNotFound("/api/hello/manager", "테스트 매니저 페이지", GET, roleManager);
+        createResourceIfNotFound("/api/hello/user", "테스트 회원 페이지", GET, roleUser);
+    }
+
+    private Resource createResourceIfNotFound(String resourceUrl, String resourceName, HttpMethod httpMethod, Role role) {
+        consoleMessage("Resource", resourceUrl);
+        Resource resource = resourceRepository.findByResourceUrl(resourceUrl);
+
+        if (resource == null) {
+            resource = Resource.create(resourceUrl, resourceName, httpMethod, role);
+        }
+
+        Resource savedResource = resourceRepository.save(resource);
+        em.flush();
+        return savedResource;
     }
 
     private Member createMemberIfNotFound(String email, String password, int age, Role... role) {
+        consoleMessage("Member", email);
         Optional<Member> member = memberRepository.findByEmail(email);
         if (member.isPresent()) {
             return member.get();
         }
-        return memberRepository.save(Member.createMember(email, passwordEncoder.encode(password), age, role));
+        Member savedMember = memberRepository.save(Member.createMember(email, passwordEncoder.encode(password), age, role));
+        em.flush();
+        return savedMember;
     }
 
     private Role createRoleIfNotFound(RoleType roleType) {
+        consoleMessage("Role", roleType.name());
         Optional<Role> role = roleRepository.findByRoleType(roleType);
         if (role.isPresent()) {
             return role.get();
         }
-        return roleRepository.save(new Role(roleType));
+        Role savedRole = roleRepository.save(new Role(roleType));
+        em.flush();
+        return savedRole;
+    }
+
+    private void consoleMessage(String target, String message) {
+        System.out.println("\n\n########################################");
+        System.out.println(String.format("## [%s]의 초기화, 값: %s", target, message));
+        System.out.println("########################################\n\n");
     }
 }

@@ -5,15 +5,15 @@ import java.util.Collection;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-public class PostJwtAuthenticationToken extends UsernamePasswordAuthenticationToken {
+public class JwtPostAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-    private PostJwtAuthenticationToken(Object principal, Object credentials,
+    private JwtPostAuthenticationToken(Object principal, Object credentials,
         Collection<? extends GrantedAuthority> authorities) {
         super(principal, credentials, authorities);
     }
 
-    public static PostJwtAuthenticationToken create(SecurityMemberContext context) {
-        return new PostJwtAuthenticationToken(context, null, context.getAuthorities());
+    public static JwtPostAuthenticationToken create(SecurityMemberContext context) {
+        return new JwtPostAuthenticationToken(context, null, context.getAuthorities());
     }
 
     public SecurityMemberContext getSecurityMemberContext() {

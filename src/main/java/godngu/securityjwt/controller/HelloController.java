@@ -20,4 +20,19 @@ public class HelloController {
     public String apiHello() {
         return "apiHello";
     }
+
+    @GetMapping("/api/hello/admin")
+    public String roleAdmin() {
+        return "roleAdmin";
+    }
+
+    @GetMapping("/api/hello/manager")
+    public String roleManager() {
+        return "roleManager";
+    }
+
+    @GetMapping("/api/hello/user")
+    public String roleUser() {
+        return "roleUser";
+    }
 }

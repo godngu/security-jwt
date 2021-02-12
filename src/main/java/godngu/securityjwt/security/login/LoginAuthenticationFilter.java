@@ -38,7 +38,7 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
         verify(loginRequest);
 
         return this.getAuthenticationManager().authenticate(
-            PreLoginAuthenticationToken.create(loginRequest)
+            LoginPreAuthenticationToken.create(loginRequest)
         );
     }
 

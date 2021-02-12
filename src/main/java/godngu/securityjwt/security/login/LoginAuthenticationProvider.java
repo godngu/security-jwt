@@ -30,7 +30,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Assert.notNull(authentication, "No authentication data provided");
 
-        PreLoginAuthenticationToken authenticationToken = (PreLoginAuthenticationToken) authentication;
+        LoginPreAuthenticationToken authenticationToken = (LoginPreAuthenticationToken) authentication;
 
         String email = authenticationToken.getEmail();
         String password = authenticationToken.getPassword();
@@ -45,12 +45,12 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
             throw new InsufficientAuthenticationException("Member has no roles assigned");
         }
 
-        return PostLoginAuthenticationToken.create(createSecurityMemberContext(member));
+        return LoginPostAuthenticationToken.create(createSecurityMemberContext(member));
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.equals(PreLoginAuthenticationToken.class);
+        return authentication.equals(LoginPreAuthenticationToken.class);
     }
 
     private SecurityMemberContext createSecurityMemberContext(Member member) {

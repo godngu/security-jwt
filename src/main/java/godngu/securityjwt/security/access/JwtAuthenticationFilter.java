@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
         String token = extractToken(request);
         return this.getAuthenticationManager().authenticate(
-            PreJwtAuthenticationToken.create(token));
+            JwtPreAuthenticationToken.create(token));
     }
 
     private String extractToken(HttpServletRequest request) {

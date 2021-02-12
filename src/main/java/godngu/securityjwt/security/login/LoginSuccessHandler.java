@@ -4,7 +4,6 @@ import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import godngu.securityjwt.domain.entity.Member;
 import godngu.securityjwt.domain.exception.EntityNotFoundException;
 import godngu.securityjwt.domain.repository.MemberRepository;
 import godngu.securityjwt.security.common.SecurityMemberContext;
@@ -35,7 +34,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        PostLoginAuthenticationToken authenticationToken = (PostLoginAuthenticationToken) authentication;
+        LoginPostAuthenticationToken authenticationToken = (LoginPostAuthenticationToken) authentication;
 
         SecurityMemberContext memberContext = authenticationToken.getSecurityMemberContext();
         Collection<GrantedAuthority> authorities = memberContext.getAuthorities();

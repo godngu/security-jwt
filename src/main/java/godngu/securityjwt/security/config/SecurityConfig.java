@@ -3,11 +3,14 @@ package godngu.securityjwt.security.config;
 import static org.springframework.security.config.BeanIds.AUTHENTICATION_MANAGER;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import godngu.securityjwt.security.Service.SecurityResourceService;
 import godngu.securityjwt.security.access.JwtAccessDeniedHandler;
 import godngu.securityjwt.security.access.JwtAuthenticationEntryPoint;
 import godngu.securityjwt.security.access.SkipPathRequestMatcher;
 import godngu.securityjwt.security.access.JwtAuthenticationFilter;
 import godngu.securityjwt.security.access.JwtAuthenticationProvider;
+import godngu.securityjwt.security.common.UrlFilterInvocationSecurityMetadataSource;
+import godngu.securityjwt.security.common.UrlResourcesMapFactoryBean;
 import godngu.securityjwt.security.jwt.JwtConfig;
 import godngu.securityjwt.security.login.LoginFailureHandler;
 import godngu.securityjwt.security.login.LoginSuccessHandler;
@@ -17,6 +20,9 @@ import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +30,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -40,6 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final SecurityResourceService securityResourceService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -59,12 +68,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers(API_ROOT_URL).authenticated();
         http
             .addFilterBefore(loginAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(customFilterSecurityInterceptor(), FilterSecurityInterceptor.class);
 
         http
             .exceptionHandling()
             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
             .accessDeniedHandler(jwtAccessDeniedHandler);
+    }
+
+    @Bean
+    public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
+        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
+        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
+        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
+        return filterSecurityInterceptor;
+    }
+
+    @Bean
+    public FilterInvocationSecurityMetadataSource urlFilterInvocationSecurityMetadataSource() throws Exception {
+        return new UrlFilterInvocationSecurityMetadataSource(
+            urlResourcesMapFactoryBean().getObject(), securityResourceService);
+    }
+
+    private UrlResourcesMapFactoryBean urlResourcesMapFactoryBean() {
+        return new UrlResourcesMapFactoryBean(securityResourceService);
+    }
+
+    @Bean
+    public AccessDecisionManager affirmativeBased() {
+        return new AffirmativeBased(Arrays.asList(new RoleVoter()));
     }
 
     protected JwtAuthenticationFilter tokenAuthenticationFilter() throws Exception {

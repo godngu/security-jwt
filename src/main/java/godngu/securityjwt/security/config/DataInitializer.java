@@ -8,11 +8,13 @@ import static org.springframework.http.HttpMethod.GET;
 import godngu.securityjwt.domain.entity.Member;
 import godngu.securityjwt.domain.entity.Resource;
 import godngu.securityjwt.domain.entity.Role;
+import godngu.securityjwt.domain.entity.RoleHierarchy;
 import godngu.securityjwt.domain.entity.RoleType;
 import godngu.securityjwt.domain.repository.MemberRepository;
 import godngu.securityjwt.domain.repository.MemberRoleRepository;
 import godngu.securityjwt.domain.repository.ResourceRepository;
 import godngu.securityjwt.domain.repository.ResourceRoleRepository;
+import godngu.securityjwt.domain.repository.RoleHierarchyRepository;
 import godngu.securityjwt.domain.repository.RoleRepository;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -35,6 +37,7 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
     private final MemberRepository memberRepository;
     private final RoleRepository roleRepository;
     private final ResourceRepository resourceRepository;
+    private final RoleHierarchyRepository roleHierarchyRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -63,6 +66,28 @@ public class DataInitializer implements ApplicationListener<ContextRefreshedEven
         createResourceIfNotFound("/api/hello/admin", "테스트 관리자 페이지", GET, roleAdmin);
         createResourceIfNotFound("/api/hello/manager", "테스트 매니저 페이지", GET, roleManager);
         createResourceIfNotFound("/api/hello/user", "테스트 회원 페이지", GET, roleUser);
+
+        createRoleHierarchyIfNotFound(roleManager, roleAdmin);
+        createRoleHierarchyIfNotFound(roleUser, roleManager);
+    }
+
+    public void createRoleHierarchyIfNotFound(Role currentRole, Role parentRole) {
+        consoleMessage("RoleHierarchy", parentRole.getRoleDescription() +" > " + currentRole.getRoleDescription());
+        RoleHierarchy roleHierarchy = roleHierarchyRepository.findByRoleType(parentRole.getRoleType());
+        if (roleHierarchy == null) {
+            roleHierarchy = new RoleHierarchy(parentRole.getRoleType());
+        }
+        RoleHierarchy parentRoleHierarchy = roleHierarchyRepository.save(roleHierarchy);
+
+        roleHierarchy = roleHierarchyRepository.findByRoleType(currentRole.getRoleType());
+        if (roleHierarchy == null) {
+            roleHierarchy = new RoleHierarchy(currentRole.getRoleType());
+        }
+
+        RoleHierarchy childRoleHierarchy = roleHierarchyRepository.save(roleHierarchy);
+        childRoleHierarchy.setParent(parentRoleHierarchy);
+
+        em.flush();
     }
 
     private Resource createResourceIfNotFound(String resourceUrl, String resourceName, HttpMethod httpMethod, Role role) {

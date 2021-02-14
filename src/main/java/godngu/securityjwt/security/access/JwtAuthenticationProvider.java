@@ -4,14 +4,19 @@ import static godngu.securityjwt.security.common.SecurityConstants.AUTHORITIES;
 import static godngu.securityjwt.security.common.SecurityConstants.AUTHORITY;
 
 import godngu.securityjwt.security.common.SecurityMemberContext;
+import godngu.securityjwt.security.exception.JwtTokenExpiredException;
 import godngu.securityjwt.security.jwt.JwtConfig;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.SignatureException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,11 +52,18 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     }
 
     private Claims parse(String token) {
-        return Jwts.parserBuilder()
-            .setSigningKey(jwtConfig.getSecretKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+        try {
+            return Jwts.parserBuilder()
+                .setSigningKey(jwtConfig.getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        } catch (ExpiredJwtException e) {
+            throw new CredentialsExpiredException("Jwt token is expired.");
+        } catch (SignatureException e) {
+            throw new BadCredentialsException(String.format("Invalid jwt token: %s", token));
+        }
     }
 
     private List<GrantedAuthority> getAuthorities(Claims claims) {

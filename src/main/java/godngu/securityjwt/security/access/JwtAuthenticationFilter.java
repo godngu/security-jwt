@@ -57,10 +57,10 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         chain.doFilter(request, response);
     }
 
-    @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-        AuthenticationException failed) throws IOException, ServletException {
-        SecurityContextHolder.clearContext();
-        super.unsuccessfulAuthentication(request, response, failed);
-    }
+//    @Override
+//    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+//        AuthenticationException failed) throws IOException, ServletException {
+//        SecurityContextHolder.clearContext();
+//        super.unsuccessfulAuthentication(request, response, failed);
+//    }
 }

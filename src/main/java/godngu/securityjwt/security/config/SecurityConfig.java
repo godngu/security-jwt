@@ -6,6 +6,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 import godngu.securityjwt.security.Service.SecurityResourceService;
 import godngu.securityjwt.security.access.JwtAccessDeniedHandler;
 import godngu.securityjwt.security.access.JwtAuthenticationEntryPoint;
+import godngu.securityjwt.security.access.JwtAuthenticationFailureHandler;
 import godngu.securityjwt.security.access.JwtAuthenticationFilter;
 import godngu.securityjwt.security.access.JwtAuthenticationProvider;
 import godngu.securityjwt.security.access.SkipPathRequestMatcher;
@@ -52,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final SecurityResourceService securityResourceService;
+    private final JwtAuthenticationFailureHandler jwtAuthenticationFailureHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -123,6 +125,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected JwtAuthenticationFilter tokenAuthenticationFilter() throws Exception {
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(
             new SkipPathRequestMatcher(Arrays.asList(PERMIT_ALL_RESOURCES), API_ROOT_URL));
+        filter.setAuthenticationFailureHandler(jwtAuthenticationFailureHandler);
         filter.setAuthenticationManager(authenticationManagerBean());
         return filter;
     }

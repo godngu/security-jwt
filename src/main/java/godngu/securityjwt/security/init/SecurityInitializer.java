@@ -1,4 +1,4 @@
-package godngu.securityjwt.security.common;
+package godngu.securityjwt.security.init;
 
 import godngu.securityjwt.security.Service.RoleHierarchyService;
 import lombok.RequiredArgsConstructor;

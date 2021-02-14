@@ -1,4 +1,4 @@
-package godngu.securityjwt.security.config;
+package godngu.securityjwt.security.init;
 
 import static godngu.securityjwt.domain.entity.RoleType.ROLE_ADMIN;
 import static godngu.securityjwt.domain.entity.RoleType.ROLE_MANAGER;

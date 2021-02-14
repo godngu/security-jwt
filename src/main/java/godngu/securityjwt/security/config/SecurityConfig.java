@@ -6,16 +6,16 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 import godngu.securityjwt.security.Service.SecurityResourceService;
 import godngu.securityjwt.security.access.JwtAccessDeniedHandler;
 import godngu.securityjwt.security.access.JwtAuthenticationEntryPoint;
-import godngu.securityjwt.security.access.SkipPathRequestMatcher;
 import godngu.securityjwt.security.access.JwtAuthenticationFilter;
 import godngu.securityjwt.security.access.JwtAuthenticationProvider;
+import godngu.securityjwt.security.access.SkipPathRequestMatcher;
+import godngu.securityjwt.security.common.PermitAllFilter;
 import godngu.securityjwt.security.common.UrlFilterInvocationSecurityMetadataSource;
 import godngu.securityjwt.security.common.UrlResourcesMapFactoryBean;
-import godngu.securityjwt.security.jwt.JwtConfig;
+import godngu.securityjwt.security.login.LoginAuthenticationFilter;
+import godngu.securityjwt.security.login.LoginAuthenticationProvider;
 import godngu.securityjwt.security.login.LoginFailureHandler;
 import godngu.securityjwt.security.login.LoginSuccessHandler;
-import godngu.securityjwt.security.login.LoginAuthenticationProvider;
-import godngu.securityjwt.security.login.LoginAuthenticationFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +27,6 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
-import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -47,7 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] PERMIT_ALL_RESOURCES = {"/", "/login*", "/hello"};
     public static final String API_ROOT_URL = "/api/**";
 
-    private final JwtConfig jwtConfig;
     private final LoginSuccessHandler loginSuccessHandler;
     private final LoginFailureHandler loginFailureHandler;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
@@ -84,11 +82,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public FilterSecurityInterceptor customFilterSecurityInterceptor() throws Exception {
-        FilterSecurityInterceptor filterSecurityInterceptor = new FilterSecurityInterceptor();
-        filterSecurityInterceptor.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
-        filterSecurityInterceptor.setAccessDecisionManager(affirmativeBased());
-        filterSecurityInterceptor.setAuthenticationManager(authenticationManagerBean());
-        return filterSecurityInterceptor;
+        PermitAllFilter permitAllFilter = new PermitAllFilter(PERMIT_ALL_RESOURCES);
+        permitAllFilter.setSecurityMetadataSource(urlFilterInvocationSecurityMetadataSource());
+        permitAllFilter.setAccessDecisionManager(affirmativeBased());
+        permitAllFilter.setAuthenticationManager(authenticationManagerBean());
+        return permitAllFilter;
     }
 
     @Bean

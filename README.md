@@ -109,3 +109,12 @@ ROLE_ADMIN > ROLE_MANAGER
 ```
 ### `SecurityInitializer`
 - 계층 권한이 적용되는 시점을 `ApplicationRunner`에 설정한다.
+
+
+# PermitAllFilter
+- 어떠한 요청이 발생하면 `AbstractSecurityInterceptor`에서 인증 및 권한 심사를 한다.
+- `PermitAllFilter`를 적용하면 인가처리가 필요 없는 대상을 관리하고, 미리 처리해서 권한 심사 없이 바로 통과 된다.
+- 이렇게 하면 `AbstractSecurityInterceptor`  전에 처리된다.
+    - 권한 심사를 할 필요가 없는 대상을 명확하게 선별하고, 프로세스를 생략한다.
+    - 효율적이다.
+- `beforeInvocation`를 오버라이드하여 로직을 개발한다.
